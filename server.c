@@ -18,13 +18,10 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include <fcntl.h>
 #include "server.h"
 
 //***************************** Local Constants *******************************
 #define CONNECTION_PORT         (3500)
-#define CONENCTION_FAILED       (0)
-#define CONNECTION_SUCCESS      (1)
 #define NULL_CHARACTER          ('\0')
 #define MESSAGE_BUF_LEN         (100)
 
@@ -51,6 +48,7 @@ bool startServerCon(void)
 {
     bool blConState = false;
     bool blMesState = false;
+    uint8* pucMessage = "Hello!!";
 
     blConState = openConnection();
 
@@ -62,10 +60,14 @@ bool startServerCon(void)
         if (blConState == true)
         {
             printf("Server connected to client\n");
-            uint8* message = "Hello!!";
             
             // Message send to server
-            blMesState = sendMessage(message);
+            blMesState = sendMessage(pucMessage);
+            
+            if (blMesState == false)
+            {
+                printf("Message not send\n");
+            }
         }
     }
 
@@ -151,7 +153,7 @@ static bool connectToSocket(void)
     bool blStatus = true;
     uint8 ucConState = 0;
     struct sockaddr_in stConnectionAddress = {0};
-    uint32 ulLengthOfAddress = 0;
+    uint32 ulLenOfAddress = 0;
     uint32 ulSocketDescriptor = 0;
     uint32 ulClientSocket = 0;
 
@@ -167,10 +169,11 @@ static bool connectToSocket(void)
         blStatus = false;
     }
 
-    ulLengthOfAddress = sizeof(stConnectionAddress);
+    ulLenOfAddress = sizeof(stConnectionAddress);
     // Accept connection signals from the client
     ulClientSocket = accept(ulSocketDescriptor, 
-                    (struct sockaddr*)&stConnectionAddress, &ulLengthOfAddress);
+                    (struct sockaddr*)&stConnectionAddress, &ulLenOfAddress);
+
     setClientSocket(ulClientSocket);
 
     // Check if the server is accepting the signals from the client
@@ -191,18 +194,18 @@ static bool connectToSocket(void)
 //Return  : Return read message status
 //Notes   : Nil
 //*****************************************************************************
-bool readMessage(uint8* pucRecieveBuffer)
+bool serverReadMessage(uint8* pucRecieveBuffer)
 {
     bool blStatus = false;
-    int32 lReadState = 0;
+    int32 lRecMsgLen = 0;
     uint32 ulClientSocket = 0;
 
     ulClientSocket = getClientSocket();
 
     // Receive data sent by the client
-    lReadState = recv(ulClientSocket, pucRecieveBuffer, MESSAGE_BUF_LEN, MSG_DONTWAIT);
+    lRecMsgLen = recv(ulClientSocket, pucRecieveBuffer, MESSAGE_BUF_LEN, MSG_DONTWAIT);
 
-    if (lReadState > 0)
+    if (lRecMsgLen > 0)
     {
         blStatus = true;
     }
@@ -217,15 +220,23 @@ bool readMessage(uint8* pucRecieveBuffer)
 //Return  : Return send message status
 //Notes   : Nil
 //*****************************************************************************
-bool sendMessage(uint8* pucMessage)
+bool serverSendMessage(uint8* pucMessage)
 {
     bool blStatus = true;
+    uint32 ulTransferMsgLen = 0;
     uint32 ulClientSocket = 0;
+    uint32 ulMsgLen = 0;
 
     ulClientSocket = getClientSocket();
 
+    ulMsgLen = strlen(pucMessage);
     // Send data to the client
-    send(ulClientSocket, pucMessage, strlen(pucMessage), 0);
+    ulTransferMsgLen = send(ulClientSocket, pucMessage, ulMsgLen, 0);
+
+    if (ulTransferMsgLen != ulMsgLen)
+    {
+        blStatus = false;
+    }
 
     return blStatus;
 }

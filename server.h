@@ -19,8 +19,8 @@
 
 //**************************** Forward Declarations ***************************
 bool startServerCon(void);
-bool readMessage(uint8* cRecieveBuffer);
-bool sendMessage(uint8* message);
+bool serverReadMessage(uint8* pucRecieveBuffer);
+bool serverSendMessage(uint8* pucMessage);
 bool closeConnection(void);
 
 #endif // _SERVER_H_ 

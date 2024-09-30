@@ -1,4 +1,4 @@
-//********************** Socket communication - Server ************************
+//*************************** Socket communication ****************************
 // Copyright (c) 2024 Trenser Technology Solutions (P) Ltd.
 // All Rights Reserved
 //*****************************************************************************

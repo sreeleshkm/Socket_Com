@@ -116,17 +116,17 @@ static bool openConnection(struct sockaddr_in* pstServerAdd)
 static bool connectToSocket(struct sockaddr_in pstServerAdd)
 {
     bool blStatus = true;
-    uint32 ulConState = CONNECTION_SUCCESS;
+    int32 lConState = CONNECTION_SUCCESS;
     uint32 ulSocketDescriptor = 0;
     
     ulSocketDescriptor = getSocketDescriptor();
 
     // Connect to the server
-    ulConState = connect(ulSocketDescriptor,
+    lConState = connect(ulSocketDescriptor,
                         (struct sockaddr*)& pstServerAdd,
                         sizeof(pstServerAdd));
 
-    if(ulConState < CONNECTION_FAILED)
+    if(lConState < CONNECTION_FAILED)
     {
         blStatus = false;
     }

@@ -23,19 +23,19 @@
 
 //***************************** Local Constants *******************************
 #define CONNECTION_PORT         (3500)
-#define CONENCTION_FAILED       (0)
+#define CONNECTION_FAILED       (0)
 #define CONNECTION_SUCCESS      (1)
 #define NULL_CHARACTER          ('\0')
 #define MESSAGE_BUF_LEN         (100)
 
 //***************************** Local Variables *******************************
-static uint32 sgulSocketDescreptor = 0;
+static uint32 sgulSocketDescriptor = 0;
 
 //****************************** Local Functions ******************************
-static bool openConnection(struct sockaddr_in* stServerAdd);
-static bool connectToSocket(struct sockaddr_in stServerAdd);
-static uint32 getSocketDescreptor(void);
-static void setSocketDescreptor(uint32 ulSocDes);
+static bool openConnection(struct sockaddr_in* pstServerAdd);
+static bool connectToSocket(struct sockaddr_in pstServerAdd);
+static uint32 getSocketDescriptor(void);
+static void setSocketDescriptor(uint32 ulSocDes);
 
 //****************************** startClientCon *******************************
 //Purpose : Open the client socket communication
@@ -44,12 +44,12 @@ static void setSocketDescreptor(uint32 ulSocDes);
 //Return  : Return socket connection state
 //Notes   : Nil
 //*****************************************************************************
-bool startClientCon(void)
+bool clientStartCon(void)
 {
     bool blConState = false;
     bool blMesState = false;
     // Structure to represent the address
-    struct sockaddr_in stServerAddress;
+    struct sockaddr_in stServerAddress = {0};
 
     blConState = openConnection(&stServerAddress);
 
@@ -77,17 +77,17 @@ bool startClientCon(void)
 //****************************** openConnection ******************************
 //Purpose : Open the client socket communication
 //Inputs  : Nil
-//Outputs : stServerAdd
+//Outputs : pstServerAdd
 //Return  : Return socket creation state
 //Notes   : Nil
 //*****************************************************************************
-static bool openConnection(struct sockaddr_in* stServerAdd)
+static bool openConnection(struct sockaddr_in* pstServerAdd)
 {
     bool blStatus = true;
     uint32 ulSocketDescriptor = 0;
 
     ulSocketDescriptor = socket(AF_INET, SOCK_STREAM, 0);
-    setSocketDescreptor(ulSocketDescriptor);
+    setSocketDescriptor(ulSocketDescriptor);
 
     if(ulSocketDescriptor < 0)
     {
@@ -96,11 +96,11 @@ static bool openConnection(struct sockaddr_in* stServerAdd)
     else
     {
         // Initialize address structure for binding
-        stServerAdd->sin_family = AF_INET;
-        stServerAdd->sin_port = htons(CONNECTION_PORT);
+        pstServerAdd->sin_family = AF_INET;
+        pstServerAdd->sin_port = htons(CONNECTION_PORT);
         // Set address to any address available
-        stServerAdd->sin_addr.s_addr = INADDR_ANY;
-        stServerAdd->sin_zero[8] = NULL_CHARACTER ;
+        pstServerAdd->sin_addr.s_addr = INADDR_ANY;
+        pstServerAdd->sin_zero[8] = NULL_CHARACTER ;
     }
 
     return blStatus;
@@ -108,25 +108,25 @@ static bool openConnection(struct sockaddr_in* stServerAdd)
 
 //****************************** connectToSocket ******************************
 //Purpose : Try to connect to the server
-//Inputs  : stServerAdd
+//Inputs  : pstServerAdd
 //Outputs : Nil
 //Return  : Return socket connection state
 //Notes   : Nil
 //*****************************************************************************
-static bool connectToSocket(struct sockaddr_in stServerAdd)
+static bool connectToSocket(struct sockaddr_in pstServerAdd)
 {
     bool blStatus = true;
     uint32 ulConState = CONNECTION_SUCCESS;
     uint32 ulSocketDescriptor = 0;
     
-    ulSocketDescriptor = getSocketDescreptor();
+    ulSocketDescriptor = getSocketDescriptor();
 
     // Connect to the server
     ulConState = connect(ulSocketDescriptor,
-                        (struct sockaddr*)& stServerAdd,
-                        sizeof(stServerAdd));
+                        (struct sockaddr*)& pstServerAdd,
+                        sizeof(pstServerAdd));
 
-    if(ulConState < CONENCTION_FAILED)
+    if(ulConState < CONNECTION_FAILED)
     {
         blStatus = false;
     }
@@ -138,22 +138,22 @@ static bool connectToSocket(struct sockaddr_in stServerAdd)
 //******************************** readMessage ********************************
 //Purpose : Read message from server
 //Inputs  : Nil
-//Outputs : RecieveBuffer
+//Outputs : pucRecieveBuffer
 //Return  : Return read message status
 //Notes   : Nil
 //*****************************************************************************
-bool readMessage(uint8* pucRecieveBuffer)
+bool clientReadMessage(uint8* pucRecieveBuffer)
 {
     bool blStatus = false;
-    int32 lReadState = 0;
+    int32 lReadMesLen = 0;
     uint32 ulSocketDescriptor = 0;
 
-    ulSocketDescriptor = getSocketDescreptor();
+    ulSocketDescriptor = getSocketDescriptor();
 
     //Receive a message from the server
-    lReadState = recv(ulSocketDescriptor, pucRecieveBuffer, MESSAGE_BUF_LEN, MSG_DONTWAIT);
+    lReadMesLen = recv(ulSocketDescriptor, pucRecieveBuffer, MESSAGE_BUF_LEN, MSG_DONTWAIT);
 
-    if (lReadState > 0)
+    if (lReadMesLen > 0)
     {
         blStatus = true;
     }
@@ -168,15 +168,23 @@ bool readMessage(uint8* pucRecieveBuffer)
 //Return  : Return send message status
 //Notes   : Nil
 //*****************************************************************************
-bool sendMessage(uint8* pucMessage)
+bool clientSendMessage(uint8* pucMessage)
 {
     bool blStatus = true;
+    uint32 ulTransferMsgLen = 0;
+    uint32 ulMsgLen = 0;
     uint32 ulSocketDescriptor = 0;
 
-    ulSocketDescriptor = getSocketDescreptor();
+    ulSocketDescriptor = getSocketDescriptor();
 
+    ulMsgLen = strlen(pucMessage);
     // Send message to the server
-    write(ulSocketDescriptor, pucMessage, strlen(pucMessage));
+    ulTransferMsgLen = send(ulSocketDescriptor, pucMessage, ulMsgLen, 0);
+
+    if (ulTransferMsgLen != ulMsgLen)
+    {
+        blStatus = false;
+    }
 
     return blStatus;
 }
@@ -188,12 +196,12 @@ bool sendMessage(uint8* pucMessage)
 //Return  : Return the connection close status
 //Notes   : Nil
 //*****************************************************************************
-bool closeClientConnection(void)
+bool clientCloseCon(void)
 {
     bool blStatus = true;
     uint32 ulSocketDescriptor = 0;
 
-    ulSocketDescriptor = getSocketDescreptor();
+    ulSocketDescriptor = getSocketDescriptor();
 
     // Terminate the socket connection
     close(ulSocketDescriptor);
@@ -201,28 +209,28 @@ bool closeClientConnection(void)
     return blStatus;
 }
 
-//***************************** getSocketDescreptor ***************************
-//Purpose : Read the socket descreptor value
+//***************************** getSocketDescriptor ***************************
+//Purpose : Read the socket descriptor value
 //Inputs  : Nil
 //Outputs : Nil
-//Return  : Return the socket descreptor value
+//Return  : Return the socket descriptor value
 //Notes   : Nil
 //*****************************************************************************
-static uint32 getSocketDescreptor(void)
+static uint32 getSocketDescriptor(void)
 {
-    return sgulSocketDescreptor;
+    return sgulSocketDescriptor;
 }
 
-//***************************** setSocketDescreptor ***************************
-//Purpose : Set the socket descreptor value
+//***************************** setSocketDescriptor ***************************
+//Purpose : Set the socket descriptor value
 //Inputs  : ulSocDes
 //Outputs : Nil
 //Return  : Nil
 //Notes   : Nil
 //*****************************************************************************
-static void setSocketDescreptor(uint32 ulSocDes)
+static void setSocketDescriptor(uint32 ulSocDes)
 {
-    sgulSocketDescreptor = ulSocDes;
+    sgulSocketDescriptor = ulSocDes;
 }
 
 // EOF

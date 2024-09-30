@@ -36,23 +36,23 @@ void main()
 {
     bool blStatus = false;
     bool blReadStatus = false;
-    uint8 cRecieveBuffer[READ_BUF_LEN] = {0};
+    uint8 pucRecieveBuffer[READ_BUF_LEN] = {0};
     time_t lPrevTime = 0;
     bool blSendState = false;
     bool blMesState = false;
 
-    blStatus = startClientCon();
+    blStatus = clientStartCon();
     
     if (blStatus == true)
     {
         while (1)
         {
             // Read message from the server
-            blReadStatus = readMessage(cRecieveBuffer);
+            blReadStatus = clientReadMessage(pucRecieveBuffer);
 
             if (blReadStatus == true)
             {
-                printf("Message from server: %s\n", cRecieveBuffer);
+                printf("Message from server: %s\n", pucRecieveBuffer);
             }
 
             blSendState = exceedTime(SEND_MES_TIME_DIF, &lPrevTime);
@@ -62,7 +62,7 @@ void main()
                 uint8* message = "Hi!!";
                 
                 // Send a message to server in every 5 seconds
-                blMesState = sendMessage(message);
+                blMesState = clientSendMessage(message);
             }
         }
     }

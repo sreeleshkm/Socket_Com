@@ -18,10 +18,10 @@
 #include "types.h"
 
 //**************************** Forward Declarations ***************************
-bool startClientCon(void);
-bool readMessage(uint8* RecieveBuffer);
-bool sendMessage(uint8* message);
-bool closeClientConnection(void);
+bool clientStartCon(void);
+bool clientReadMessage(uint8* pucRecieveBuffer);
+bool clientSendMessage(uint8* pucMessage);
+bool clientCloseCon(void);
 
 #endif // _CLIENT_H_ 
 

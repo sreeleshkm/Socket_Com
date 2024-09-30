@@ -35,21 +35,21 @@ void main()
     bool blMesState = false;
     uint8* pucMessage = "Recieved!!";
 
-    blStatus = startServerCon();
+    blStatus = serverStartCon();
 
     if (blStatus == true)
     {
         while (1)
         {
             // Read message from the client
-            blReadStatus = readMessage(pucRecieveBuffer);
+            blReadStatus = serverReadMessage(pucRecieveBuffer);
 
             if (blReadStatus == true)
             {
                 printf("Message from server: %s\n", pucRecieveBuffer);
                 
                 // Send recieved message to client
-                blMesState = sendMessage(pucMessage);
+                blMesState = serverSendMessage(pucMessage);
             
                 if (blMesState == false)
                 {

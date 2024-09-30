@@ -4,7 +4,7 @@
 //*****************************************************************************
 //
 // File     : types.h
-// Summary  : Define the dtat types
+// Summary  : Define the data types
 // Note     : Nil
 // Author   : Sreelesh KM
 // Date     : 24/09/2024

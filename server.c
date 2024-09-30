@@ -26,14 +26,14 @@
 #define MESSAGE_BUF_LEN         (100)
 
 //***************************** Local Variables *******************************
-static uint32 gulSocketDescreptor = 0;
+static uint32 gulSocketDescriptor = 0;
 static uint32 gulClientSocket = 0;
 
 //****************************** Local Functions ******************************
 static bool openConnection(void);
 static bool connectToSocket(void);
-static uint32 getSocketDescreptor(void);
-static void setSocketDescreptor(uint32 lSocDes);
+static uint32 getSocketDescriptor(void);
+static void setSocketDescriptor(uint32 lSocDes);
 static uint32 getClientSocket(void);
 static void setClientSocket(uint32 lCliSoc);
 
@@ -44,7 +44,7 @@ static void setClientSocket(uint32 lCliSoc);
 //Return  : Return socket connection state
 //Notes   : Nil
 //*****************************************************************************
-bool startServerCon(void)
+bool serverStartCon(void)
 {
     bool blConState = false;
     bool blMesState = false;
@@ -62,7 +62,7 @@ bool startServerCon(void)
             printf("Server connected to client\n");
             
             // Message send to server
-            blMesState = sendMessage(pucMessage);
+            blMesState = serverSendMessage(pucMessage);
             
             if (blMesState == false)
             {
@@ -89,11 +89,11 @@ static bool openConnection(void)
     // Option value for respective option_name
     uint32 ulOptionValue = 1;
     // Structure to represent the address
-    struct sockaddr_in stServerAddress;
+    struct sockaddr_in stServerAddress = {};
 
     // Creating the socket with IPv4 domain and TCP protocol
     ulSocketDescriptor = socket(AF_INET, SOCK_STREAM, 0);
-    setSocketDescreptor(ulSocketDescriptor);
+    setSocketDescriptor(ulSocketDescriptor);
 
     // Check if the socket is created successfully
     if(ulSocketDescriptor < 0)
@@ -157,7 +157,7 @@ static bool connectToSocket(void)
     uint32 ulSocketDescriptor = 0;
     uint32 ulClientSocket = 0;
 
-    ulSocketDescriptor = getSocketDescreptor();
+    ulSocketDescriptor = getSocketDescriptor();
 
     // Listen on specified port with a maximum of 4 requests
     ucConState = listen(ulSocketDescriptor, 4);
@@ -224,8 +224,8 @@ bool serverSendMessage(uint8* pucMessage)
 {
     bool blStatus = true;
     uint32 ulTransferMsgLen = 0;
-    uint32 ulClientSocket = 0;
     uint32 ulMsgLen = 0;
+    uint32 ulClientSocket = 0;
 
     ulClientSocket = getClientSocket();
 
@@ -248,14 +248,14 @@ bool serverSendMessage(uint8* pucMessage)
 //Return  : Return the connection close status
 //Notes   : Nil
 //*****************************************************************************
-bool closeConnection(void)
+bool serverCloseConnection(void)
 {
     bool blStatus = true;
     uint32 ulSocketDescriptor = 0;
     uint32 ulClientSocket = 0;
 
     ulClientSocket = getClientSocket();
-    ulSocketDescriptor = getSocketDescreptor();
+    ulSocketDescriptor = getSocketDescriptor();
 
     // Close all the sockets created 
     close(ulSocketDescriptor);
@@ -264,28 +264,28 @@ bool closeConnection(void)
     return blStatus;
 }
 
-//***************************** getSocketDescreptor ***************************
-//Purpose : Read the socket descreptor value
+//***************************** getSocketDescriptor ***************************
+//Purpose : Read the socket descriptor value
 //Inputs  : Nil
 //Outputs : Nil
-//Return  : Return the socket descreptor value
+//Return  : Return the socket descriptor value
 //Notes   : Nil
 //*****************************************************************************
-static uint32 getSocketDescreptor(void)
+static uint32 getSocketDescriptor(void)
 {
-    return gulSocketDescreptor;
+    return gulSocketDescriptor;
 }
 
-//***************************** setSocketDescreptor ***************************
-//Purpose : Set the socket descreptor value
+//***************************** setSocketDescriptor ***************************
+//Purpose : Set the socket descriptor value
 //Inputs  : ulSocDes
 //Outputs : Nil
 //Return  : Nil
 //Notes   : Nil
 //*****************************************************************************
-static void setSocketDescreptor(uint32 ulSocDes)
+static void setSocketDescriptor(uint32 ulSocDes)
 {
-    gulSocketDescreptor = ulSocDes;
+    gulSocketDescriptor = ulSocDes;
 }
 
 //******************************* getClientSocket *****************************

@@ -18,10 +18,10 @@
 #include "types.h"
 
 //**************************** Forward Declarations ***************************
-bool startServerCon(void);
+bool serverStartCon(void);
 bool serverReadMessage(uint8* pucRecieveBuffer);
 bool serverSendMessage(uint8* pucMessage);
-bool closeConnection(void);
+bool serverCloseConnection(void);
 
 #endif // _SERVER_H_ 
 

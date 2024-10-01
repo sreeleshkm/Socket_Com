@@ -13,6 +13,10 @@
 #ifndef _TYPES_H_
 #define _TYPES_H_
 
+//***************************** Global Constants *******************************
+#define SOC_CLI 0
+#define SOC_SER 1
+
 //******************************* Global Types ********************************
 typedef unsigned char   uint8;
 typedef unsigned short  uint16;
